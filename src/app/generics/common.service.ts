@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import * as Response from '@/common/response';
+import * as Response from '@/app/response';
 
 export class CommonService<T>  {
   constructor(private readonly repository: Repository<T>) {}

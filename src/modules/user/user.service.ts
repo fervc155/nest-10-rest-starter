@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { CommonService } from '@/common/generics';
+import { CommonService } from '@/app/generics';
 
 
 @Injectable()
@@ -17,10 +17,10 @@ export class UserService extends CommonService<User> {
 
 
 
-  //Example of override
-  async create(createDto: any) {
-    return await this.findAll();
-  }
+  // //Example of override
+  // async create(createDto: any) {
+  //   return await this.findAll();
+  // }
 
 
 }

@@ -1,4 +1,4 @@
-import { ExceptionFilter, Catch, NotFoundException, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { ExceptionFilter, Catch,BadRequestException, NotFoundException, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import * as MyResponse from './index';
 import { APP_FILTER } from '@nestjs/core';
@@ -36,12 +36,34 @@ export class InternalServerErrorFilter implements ExceptionFilter {
   }
 }
 
+@Catch(BadRequestException)
+export class BadRequestExceptionFilter implements ExceptionFilter {
+  catch(exception: BadRequestException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const message = exception.message || 'Internal Server Error';
+
+    response.status(400).json({
+      status: false,
+      code:400,
+      msg: message,
+      data: exception.getResponse()
+    });
+  }
+}
+
+
+
 export const filters=()=>{
   return [
 
     {
       provide: APP_FILTER,
       useClass: InternalServerErrorFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: BadRequestExceptionFilter,
     },
     {
       provide: APP_FILTER,

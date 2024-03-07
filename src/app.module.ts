@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
-import { UserModule } from './modules/user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import * as myEntities from '@/common/entities';
+import * as myEntities from '@/app/entities';
 import { APP_FILTER } from '@nestjs/core';
-import {filters} from '@/common/response/exceptions'
+import {filters} from '@/app/response/exceptions'
 import { APP_GUARD } from '@nestjs/core';
-import { middlewares } from '@/common/middlewares/';
-import { PackModule } from './modules/pack/pack.module';
+import { middlewares } from '@/app/middlewares/';
 
+import { UserModule } from './modules/user/user.module';
 
 //load entities
 const e=[]
@@ -35,7 +34,6 @@ for (const EntityClass of Object.values(myEntities)) {
       inject: [ConfigService],
     }),
     UserModule,
-    PackModule
 
     ],
   controllers: [],
