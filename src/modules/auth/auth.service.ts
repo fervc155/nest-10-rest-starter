@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
-import { AuthService} from '@/modules/user/user.service';
+import { UserService } from '@/modules/user/user.service';
 import * as Responses from '@/app/response';
 import Email from '@/app/emails'
 import * as shortid from 'shortid';
@@ -9,12 +7,12 @@ import * as shortid from 'shortid';
 
 @Injectable()
 export class AuthService {
-  constructor(userService: userService) {
+  constructor(private userService: UserService) {
 
   }
 
 
-  async create(createDto:any) {
+  async register(createDto:any) {
 
     let {email, password, password_confirmation} = createDto;
 
@@ -56,7 +54,9 @@ export class AuthService {
     if(users.length) {
       let user = users[0]
       let token =user.generateToken();
-      this.userService.update(user);
+      this.userService.update(user.id, {
+        ...user
+      });
 
       Email.send(email, "Reestablecer contraseña", { body : `Ingresa la siguiente password donde se requiera  ${token}`})
       
@@ -73,7 +73,7 @@ export class AuthService {
       Responses.badRequest("Las password no coinciden")
     }
 
-    let users = this.userService.where({token});
+    let users = await this.userService.where({token});
 
 
     if(users.length) {
@@ -82,7 +82,7 @@ export class AuthService {
 
       if(user.checkToken(token)) {
 
-        await this.userService.update({
+        await this.userService.update(user.id, {
           password,
           token:null,
           tokenExpiresAt:null,
@@ -112,7 +112,7 @@ export class AuthService {
       }
 
       let token =user.generateToken(24);
-      this.userService.update(user);
+      this.userService.update(user.id, user as any);
 
       Email.send(email, "Verificar correo", { body : `Ingresa la siguiente password donde se requiera  ${token}`})
       
@@ -124,7 +124,7 @@ export class AuthService {
 
   async emailVerification(token: string) {
 
-    let users = this.userService.where({token});
+    let users = await this.userService.where({token});
 
     if(users.length) {
 
@@ -132,7 +132,7 @@ export class AuthService {
 
       if(user.checkToken(token)) {
 
-        await this.userService.update({
+        await this.userService.update(user.id, {
           emailVerified:new Date,
           token:null,
           tokenExpiresAt:null,

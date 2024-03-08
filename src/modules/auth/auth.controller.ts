@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto';
+import { RegisterDto, LoginDto, UpdatePasswordDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { EmailDto } from '@/app/dto';
 
@@ -22,7 +22,7 @@ export class AuthController {
 
   @Post('change-password')
   changePassword(@Body() emailDto: EmailDto) {
-    return this.authService.changePassword(loginDto);
+    return this.authService.changePassword(emailDto);
   }
 
   @Post('update-password')
@@ -36,7 +36,7 @@ export class AuthController {
   }
 
   @Post('email-verification/:token')
-  emailVerification(@Param('token') token: string,) {
+  emailVerification(@Param('token') token: string) {
     return this.authService.emailVerification(token);
   }
 

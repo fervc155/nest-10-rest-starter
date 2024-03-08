@@ -12,7 +12,7 @@ import { User} from './entities/user.entity';
       User
     ])
   ],
-  export: [
+  exports: [
     UserService
   ]
 })

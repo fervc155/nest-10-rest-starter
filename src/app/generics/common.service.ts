@@ -1,28 +1,35 @@
 import { Repository } from 'typeorm';
-import * as Response from '@/app/response';
+import * as Responses from '@/app/response';
+import {  UploadedFile } from '@nestjs/common';
+import { createWriteStream } from 'fs';
+import * as shortid from 'shortid';
+import ModelMedia from '@/app/models/ModelMedia';
 
 export class CommonService<T>  {
   constructor(private readonly repository: Repository<T>) {}
 
-  async findAll(relations=[]) {
-    let result = await this.repository.find({where:{deletedAt:null}, relations});
-    return clearResults(result,relations);
+  async findAll(relations=[], paginated={}) {
+    let result = await this.repository.find({
+      where:{deletedAt:null} as any,
+      ...paginated,
+      relations});
+    return this.clearResults(result,relations);
   }
 
 
   async where(wheres:any={},relations=[]) {
-    let result = await this.repository.find({where:{deletedAt:null, ...wheres}, relations});
-    return clearResults(result,relations);
+    let result = await this.repository.find({where:{deletedAt:null, ...wheres} as any, relations});
+    return this.clearResults(result,relations);
   }
 
   async findOne(id: number, relations=[]) {
-    const found = await this.repository.findOne({where:{id, deletedAt:null} as any}, relations);
+    const found = await this.repository.findOne({where:{id, deletedAt:null} as any, relations});
 
     if(!found) {
-      Response.notFound(`${id} Not found`);
+      Responses.notFound(`${id} Not found`);
     }
 
-    return clearResult(found, relations);
+    return this.clearResult(found, relations);
   }
   
   private clearResult(model:any, relations) {
@@ -34,7 +41,7 @@ export class CommonService<T>  {
 
 
   private clearResults(models:any, relations) {
-    return models.map((model)=>clearResult(model, relations));
+    return models.map((model)=>this.clearResult(model, relations));
   }
 
   async create(createDto: any) {
@@ -51,7 +58,7 @@ export class CommonService<T>  {
 
 
 
-  remove(id: number): Promise<UpdateResult> {
+  remove(id: number) {
     return this.update(id, { deletedAt: new Date() });
   }
 
@@ -59,4 +66,41 @@ export class CommonService<T>  {
     await this.findOne(id);
     await this.repository.delete(id);
   }
+
+
+ 
+  async saveFile(id: number, file: Express.Multer.File) {
+
+    const model = await this.findOne(id);
+
+    if (!(model instanceof ModelMedia)) { 
+       Responses.badRequest("Este entity no hereda de ModelMedia")
+    }
+
+    const fileUrl = await this.storeFile(file);
+
+    model.media_url = fileUrl;
+
+    await this.update(id, model as any);
+
+    return "Imagen guardada correctamente"
+
+    
+  }
+
+  async storeFile(file: Express.Multer.File) {
+    const fileName = file.originalname;
+    const fileUrl = `/uploads/${shortid.generate()}-${fileName}`;
+    const path = `/uploads`; // ajusta según tu estructura de archivos
+
+    return new Promise((resolve, reject) =>
+      createWriteStream(path)
+        .end(file.buffer)
+        .on('finish', () => resolve(fileUrl))
+        .on('error', reject),
+    );
+  }
+ 
+
+
 }

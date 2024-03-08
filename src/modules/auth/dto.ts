@@ -20,7 +20,7 @@ export class RegisterDto {
 export class LoginDto {
   
     @IsNotEmpty()
-	@IsEmail
+	@IsEmail()
 	email:string;
 
 	@MinLength(8)

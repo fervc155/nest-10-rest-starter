@@ -14,7 +14,7 @@ class Jwt {
 		}
 	}
 	  sign(payload: any, expiresIn: string = '24h'): string {
-	    return jwt.sign(payload,  process.env.JWT_SECRET, { expiresIn });
+	    return jsonwebtoken.sign(payload,  process.env.JWT_SECRET, { expiresIn });
 	  }
 
 

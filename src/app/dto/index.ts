@@ -1,6 +1,6 @@
 
 import { IsEmail, IsNotEmpty, Validate } from 'class-validator';
-import { ExistsEmail } from './validators/ExistsEmail.validator';
+import { ExistsEmail } from './validators/ExistsEmail';
 
 export class EmailRequiredDto {
   @IsEmail({}, { message: 'Invalid email format' })

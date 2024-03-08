@@ -19,26 +19,27 @@ export class UserService extends CommonService<User> {
   //example of override
   async create(createDto: any) {
 
-    const entity = await this.repository.create(createDto);
+    const entities = await this.userRepository.create(createDto);
+    let entity = entities[0]
 
     if(createDto['password']) {
       entity.hashPassword(createDto['password'])
     }
 
-    return await this.repository.save(entity);
+    return await this.userRepository.save([entity]);
   }
 
 
-  async update(id: number, updateDto: any): Promise<T | null> {
+  async update(id: number, updateDto: any) {
     const user = await this.findOne(id);
 
-    fusion = this.repository.merge(entity, updateDto);
+    let fusion = this.userRepository.merge(user, updateDto);
     
     if(updateDto['password']) {
       fusion.hashPassword(updateDto['password']);
     }
     
-    return this.repository.save(fusion);
+    return this.userRepository.save(fusion);
   }
 
 

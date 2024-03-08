@@ -1,7 +1,8 @@
 // email.service.ts
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import * as handlebars from 'express-handlebars';
+import * as exphbs from 'express-handlebars';
+import * as nodemailerExpressHandlebars from 'nodemailer-express-handlebars';
 import * as path from 'path';
 
 class Email {
@@ -19,17 +20,14 @@ class Email {
       },
     });
 
-    const handlebarsOptions = handlebars({
-      extname: '.hbs',
-      layoutsDir: path.resolve(__dirname, 'views/layouts'), // Change this path based on your project structure
-      partialsDir: path.resolve(__dirname, 'views/partials'), // Change this path based on your project structure
-      defaultLayout: 'main',
-    });
 
-    this.transporter.use('compile', nodemailer.createTransport({
-      viewEngine: handlebarsOptions,
-      viewPath: path.resolve(__dirname, 'views'),
-    }));
+    this.transporter.use(
+      'compile',
+      nodemailerExpressHandlebars({
+        viewEngine: exphbs.create(),
+        viewPath: './views',
+      }),
+    );
   }
 
   async send(to: string, subject: string, context: any, template="base"): Promise<void> {

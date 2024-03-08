@@ -1,12 +1,13 @@
-import Model From './Model';
+import ModelMedia from './ModelMedia';
 import bcrypt from 'bcrypt'
 import Jwt from '../jwt';
 import * as shortid from 'shortid'
+import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn, DeleteDateColumn } from "typeorm";
 
-export default class Authenticable extends Model{
+export default class Authenticable extends ModelMedia{
 
 
-    @Column({type:'boolean': default:false})
+    @Column({type:'boolean', default:false})
     emailVerified:boolean;
 
     @Column({nullable:true})
@@ -15,14 +16,17 @@ export default class Authenticable extends Model{
     @Column({type:'date', nullable:true})
     private tokenExpiredAt:Date
 
-    @Column()
+    @Column({nullable:true, unique:true})
     email:string;
 
-    @Column()
+    @Column({nullable:true})
     private password:string;
 
+    @Column()
+    private roles:string
 
-    public setPassword(password):string {
+
+    public setPassword(password) {
         this.password=password;
     }
 
@@ -60,7 +64,7 @@ export default class Authenticable extends Model{
 
         const expired = new Date();
         expired.setHours(expired.getHours() + hours);
-        this.token_expired_at =  expired;
+        this.tokenExpiredAt =  expired;
 
         return this.token;
     }

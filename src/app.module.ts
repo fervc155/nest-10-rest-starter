@@ -9,7 +9,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtMiddleware } from '@/app/middlewares/JwtMiddleware';
 
 import { UserModule } from './modules/user/user.module';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
+
 
 //load entities
 const e=[]
@@ -22,6 +23,7 @@ for (const EntityClass of Object.values(myEntities)) {
 
 @Module({
   imports: [
+
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
