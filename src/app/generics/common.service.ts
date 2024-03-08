@@ -23,6 +23,7 @@ export class CommonService<T>  {
     }
 
     return clearResult(found, relations);
+  }
   
   private clearResult(model:any, relations) {
     for(let relation in relations) {

@@ -26,3 +26,16 @@ export class LoginDto {
 	@MinLength(8)
 	password:string;
 }
+
+export class UpdatePasswordDto {
+
+	@IsNotEmpty()
+	token:string;
+
+
+	@MinLength(8)
+	password:string;	
+
+	@MinLength(8)
+	password_confirmation:string;
+}

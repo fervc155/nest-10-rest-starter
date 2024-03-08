@@ -1,19 +1,19 @@
 import Model From './Model';
 import bcrypt from 'bcrypt'
 import Jwt from '../jwt';
-
+import * as shortid from 'shortid'
 
 export default class Authenticable extends Model{
 
 
     @Column({type:'boolean': default:false})
-    email_verified:boolean;
+    emailVerified:boolean;
 
     @Column({nullable:true})
-    token:string;
+    private token:string;
 
     @Column({type:'date', nullable:true})
-    token_expired_at:Date
+    private tokenExpiredAt:Date
 
     @Column()
     email:string;
@@ -46,4 +46,26 @@ export default class Authenticable extends Model{
         return Jwt.sign(payload);
     }
 
+    public setToken(token:string) {
+        this.token = token
+    }
+
+    public setTokenExpiredAt(date:any) {
+        this.tokenExpiredAt = date;
+    }
+
+
+    public generateToken(hours:number=1) {
+        this.token = shortid.generate();
+
+        const expired = new Date();
+        expired.setHours(expired.getHours() + hours);
+        this.token_expired_at =  expired;
+
+        return this.token;
+    }
+
+    public checkToken(token: string): boolean {
+      return token === this.token && new Date() <= this.tokenExpiredAt;
+    }
   }

@@ -24,8 +24,22 @@ export class UserService extends CommonService<User> {
     if(createDto['password']) {
       entity.hashPassword(createDto['password'])
     }
-    
+
     return await this.repository.save(entity);
   }
+
+
+  async update(id: number, updateDto: any): Promise<T | null> {
+    const user = await this.findOne(id);
+
+    fusion = this.repository.merge(entity, updateDto);
+    
+    if(updateDto['password']) {
+      fusion.hashPassword(updateDto['password']);
+    }
+    
+    return this.repository.save(fusion);
+  }
+
 
 }
