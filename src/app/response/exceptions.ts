@@ -1,4 +1,4 @@
-import { ExceptionFilter, Catch,BadRequestException, NotFoundException, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { ExceptionFilter, Catch,BadRequestException, UnauthorizedException, NotFoundException, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 import * as MyResponse from './index';
 import { APP_FILTER } from '@nestjs/core';
@@ -52,6 +52,23 @@ export class BadRequestExceptionFilter implements ExceptionFilter {
   }
 }
 
+@Catch(UnauthorizedException)
+export class UnauthorizedExceptionFilter implements ExceptionFilter {
+  catch(exception: UnauthorizedException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const message = exception.message || 'Internal Server Error';
+
+    response.status(401).json({
+      status: false,
+      code:401,
+      msg: message,
+      data: exception.getResponse()
+    });
+  }
+}
+
+
 
 
 export const filters=()=>{
@@ -64,6 +81,10 @@ export const filters=()=>{
     {
       provide: APP_FILTER,
       useClass: BadRequestExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: UnauthorizedExceptionFilter,
     },
     {
       provide: APP_FILTER,

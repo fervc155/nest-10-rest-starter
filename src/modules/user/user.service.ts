@@ -16,11 +16,16 @@ export class UserService extends CommonService<User> {
   }
 
 
+  //example of override
+  async create(createDto: any) {
 
-  // //Example of override
-  // async create(createDto: any) {
-  //   return await this.findAll();
-  // }
+    const entity = await this.repository.create(createDto);
 
+    if(createDto['password']) {
+      entity.hashPassword(createDto['password'])
+    }
+    
+    return await this.repository.save(entity);
+  }
 
 }

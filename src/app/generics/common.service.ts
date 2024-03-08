@@ -4,20 +4,37 @@ import * as Response from '@/app/response';
 export class CommonService<T>  {
   constructor(private readonly repository: Repository<T>) {}
 
-  async findAll(): Promise<T[]> {
-    return this.repository.find();
+  async findAll(relations=[]) {
+    let result = await this.repository.find({where:{deletedAt:null}, relations});
+    return clearResults(result,relations);
   }
 
-  async findOne(id: number) {
-    const found = await this.repository.findOne({where:{id} as any});
+
+  async where(wheres:any={},relations=[]) {
+    let result = await this.repository.find({where:{deletedAt:null, ...wheres}, relations});
+    return clearResults(result,relations);
+  }
+
+  async findOne(id: number, relations=[]) {
+    const found = await this.repository.findOne({where:{id, deletedAt:null} as any}, relations);
 
     if(!found) {
       Response.notFound(`${id} Not found`);
     }
 
-    return found;
+    return clearResult(found, relations);
+  
+  private clearResult(model:any, relations) {
+    for(let relation in relations) {
+      model[relation] = model[relation].filter(re=>re.deletedAt==null)
+    }
+    return model;
   }
 
+
+  private clearResults(models:any, relations) {
+    return models.map((model)=>clearResult(model, relations));
+  }
 
   async create(createDto: any) {
     const entity = await this.repository.create(createDto);
@@ -32,7 +49,12 @@ export class CommonService<T>  {
   }
 
 
-  async remove(id: number){
+
+  remove(id: number): Promise<UpdateResult> {
+    return this.update(id, { deletedAt: new Date() });
+  }
+
+  async forceRemove(id: number){
     await this.findOne(id);
     await this.repository.delete(id);
   }

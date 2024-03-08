@@ -1,13 +1,15 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer  } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as myEntities from '@/app/entities';
 import { APP_FILTER } from '@nestjs/core';
 import {filters} from '@/app/response/exceptions'
 import { APP_GUARD } from '@nestjs/core';
-import { middlewares } from '@/app/middlewares/';
+//import { middlewares } from '@/app/middlewares/';
+import { JwtMiddleware } from '@/app/middlewares/JwtMiddleware';
 
 import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 //load entities
 const e=[]
@@ -15,7 +17,9 @@ for (const EntityClass of Object.values(myEntities)) {
   e.push(EntityClass)
 }
 
-  
+
+ 
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -34,14 +38,20 @@ for (const EntityClass of Object.values(myEntities)) {
       inject: [ConfigService],
     }),
     UserModule,
+    AuthModule,
 
     ],
   controllers: [],
   providers: [
 
     ...filters(),
-    ...middlewares()
+    //...middlewares()
     
     ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+configure(consumer: MiddlewareConsumer) {
+    consumer.apply(JwtMiddleware('users')).forRoutes('*');
+  }
+
+}

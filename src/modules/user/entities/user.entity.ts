@@ -1,11 +1,11 @@
 /* eslint-disable prettier/prettier */
 import { Column, CreateDateColumn, Entity, EntityRepository, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, Repository, UpdateDateColumn } from "typeorm";
-import Model from '@/app/model';
+import Authenticable from '@/app/models/Authenticable';
 
 @Entity({name:"users"})
-export class User extends Model {
+export class User extends Authenticable {
     
-    @Column()
+    @Column({nullable:true})
     nombre:String;
 
 }
