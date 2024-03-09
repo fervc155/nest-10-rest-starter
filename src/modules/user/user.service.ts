@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CommonService } from '@/app/generics';
+import * as Responses from '@/app/response';
 
 
 @Injectable()
@@ -19,14 +20,11 @@ export class UserService extends CommonService<User> {
   //example of override
   async create(createDto: any) {
 
-    const entities = await this.userRepository.create(createDto);
-    let entity = entities[0]
-
     if(createDto['password']) {
-      entity.hashPassword(createDto['password'])
+      createDto['password']= await User.hashPassword(createDto['password'])
     }
-
-    return await this.userRepository.save([entity]);
+    const entities = await this.userRepository.create(createDto);
+    return await this.userRepository.save(entities);
   }
 
 
@@ -36,7 +34,7 @@ export class UserService extends CommonService<User> {
     let fusion = this.userRepository.merge(user, updateDto);
     
     if(updateDto['password']) {
-      fusion.hashPassword(updateDto['password']);
+      updateDto['password'] = await User.hashPassword(updateDto['password']);
     }
     
     return this.userRepository.save(fusion);

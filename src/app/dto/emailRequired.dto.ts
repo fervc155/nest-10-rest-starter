@@ -8,8 +8,3 @@ export class EmailRequiredDto {
   @Validate(ExistsEmail, { message: 'No existe este email en la base de datos' })
   email: string;
 }
-
-
-export class EmailDto {
-  email: string;
-}

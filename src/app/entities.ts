@@ -1,5 +1,1 @@
-import { User } from '@/modules/user/entities/user.entity'
-
-export {
-        User
-}
+export { User } from '@/modules/user/entities/user.entity'

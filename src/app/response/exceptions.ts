@@ -29,7 +29,6 @@ export class InternalServerErrorFilter implements ExceptionFilter {
 
     response.status(500).json({
       status: false,
-      code:500,
       msg: message,
       data: exception
     });
@@ -41,14 +40,8 @@ export class BadRequestExceptionFilter implements ExceptionFilter {
   catch(exception: BadRequestException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const message = exception.message || 'Internal Server Error';
 
-    response.status(400).json({
-      status: false,
-      code:400,
-      msg: message,
-      data: exception.getResponse()
-    });
+    response.status(400).json(exception.getResponse());
   }
 }
 
@@ -57,14 +50,8 @@ export class UnauthorizedExceptionFilter implements ExceptionFilter {
   catch(exception: UnauthorizedException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const message = exception.message || 'Internal Server Error';
 
-    response.status(401).json({
-      status: false,
-      code:401,
-      msg: message,
-      data: exception.getResponse()
-    });
+    response.status(401).json(exception.getResponse());
   }
 }
 

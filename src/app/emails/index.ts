@@ -9,12 +9,12 @@ class Email {
   private transporter;
 
   constructor() {
+
     this.transporter = nodemailer.createTransport({
       // Set up your email transporter configuration (e.g., SMTP, sendmail)
       host: process.env.EMAIL_HOST,
       port: process.env.EMAIL_PORT,
-      secure: process.env.EMAIL_SECURE || false,
-      auth: {
+       auth: {
         user: process.env.EMAIL_USER,
         pass:  process.env.EMAIL_PASS,
       },
@@ -24,8 +24,10 @@ class Email {
     this.transporter.use(
       'compile',
       nodemailerExpressHandlebars({
-        viewEngine: exphbs.create(),
-        viewPath: './views',
+        viewEngine: exphbs.create({
+          layoutsDir: 'src/app/emails/layouts', // location of handlebars templates
+        }),
+        viewPath: 'src/app/emails/views',
       }),
     );
   }
@@ -38,6 +40,7 @@ class Email {
       template,
       context,
     };
+       
 
     try {
       await this.transporter.sendMail(mailOptions);
@@ -50,4 +53,4 @@ class Email {
 }
 
 
-export default new Email()
+export default Email

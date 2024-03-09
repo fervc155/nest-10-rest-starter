@@ -1,7 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer  } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import * as myEntities from '@/app/entities';
 import { APP_FILTER } from '@nestjs/core';
 import {filters} from '@/app/response/exceptions'
 import { APP_GUARD } from '@nestjs/core';
@@ -12,13 +11,7 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 
 
-//load entities
-const e=[]
-for (const EntityClass of Object.values(myEntities)) {
-  e.push(EntityClass)
-}
-
-
+      
  
 
 @Module({
@@ -34,7 +27,7 @@ for (const EntityClass of Object.values(myEntities)) {
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: e,
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true,
       }),
       inject: [ConfigService],
@@ -53,7 +46,7 @@ for (const EntityClass of Object.values(myEntities)) {
 })
 export class AppModule implements NestModule {
 configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware('users')).forRoutes('*');
+    consumer.apply(JwtMiddleware('USUARIO')).forRoutes('*');
   }
 
 }

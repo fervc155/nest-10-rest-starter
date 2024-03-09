@@ -42,4 +42,4 @@ class Jwt {
 
 }
 
-export default  (new Jwt()) ;
+export default Jwt ;

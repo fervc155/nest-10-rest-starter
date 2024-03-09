@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm';
 import * as Responses from '@/app/response';
 import {  UploadedFile } from '@nestjs/common';
-import { createWriteStream } from 'fs';
+import * as fs from 'fs';
 import * as shortid from 'shortid';
 import ModelMedia from '@/app/models/ModelMedia';
 
@@ -77,6 +77,15 @@ export class CommonService<T>  {
        Responses.badRequest("Este entity no hereda de ModelMedia")
     }
 
+
+    const dir = __dirname.replaceAll('\\dist\\app\\generics', '\\uploads\\');
+    if(model.media_url) {
+      try{
+        fs.unlinkSync(dir+model.media_url);
+      } catch(error){
+      }
+    }
+
     const fileUrl = await this.storeFile(file);
 
     model.media_url = fileUrl;
@@ -89,14 +98,17 @@ export class CommonService<T>  {
   }
 
   async storeFile(file: Express.Multer.File) {
-    const fileName = file.originalname;
-    const fileUrl = `/uploads/${shortid.generate()}-${fileName}`;
-    const path = `/uploads`; // ajusta según tu estructura de archivos
+    let extensions = file.originalname.split(".")
+    let extension = extensions[extensions.length-1]
+
+    const fileName = `${shortid.generate()}.${extension}`;
+    const path = __dirname+`/../../../uploads/${fileName}`;
+
 
     return new Promise((resolve, reject) =>
-      createWriteStream(path)
+      fs.createWriteStream(path)
         .end(file.buffer)
-        .on('finish', () => resolve(fileUrl))
+        .on('finish', () => resolve(fileName))
         .on('error', reject),
     );
   }

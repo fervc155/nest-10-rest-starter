@@ -9,7 +9,7 @@ import { User} from './entities/user.entity';
   providers: [UserService],
   imports: [
     TypeOrmModule.forFeature([
-      User
+      User,
     ])
   ],
   exports: [

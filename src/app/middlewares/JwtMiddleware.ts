@@ -11,20 +11,22 @@ export const JwtMiddleware= (rolesParam:string="") =>{
 
 
   return (req: Request, res: Response, next: NextFunction) =>{
+
+    const jwtClass = new Jwt();
     // Tu lógica de middleware aquí
    
     let jwt = req.headers['authorization'] || false;
 
     if(jwt) {
       jwt = jwt.replaceAll("Bearer ", "");
-
-      let valid = Jwt.check(jwt);
+   
+      let valid = jwtClass.check(jwt);
 
       if (valid) {
 
         if(roles.length) {
 
-          if(roles.includes(valid['sub']['roles'])) {
+          if(roles.includes(valid?.sub?.roles)) {
             return next()
           }
         }  else {

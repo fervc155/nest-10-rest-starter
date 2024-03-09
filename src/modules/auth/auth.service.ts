@@ -7,8 +7,10 @@ import * as shortid from 'shortid';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService) {
 
+  email:any;
+  constructor(private userService: UserService) {
+    this.email = new Email();
   }
 
 
@@ -21,7 +23,8 @@ export class AuthService {
     }
 
     let user= await this.userService.create(createDto);
-    Email.send(email, 'Nuevo registro de usuario', {username: email}, "welcome")
+
+   await this.email.send(email, 'Nuevo registro de usuario', {username: email}, "welcome")
   }
 
 
@@ -39,7 +42,7 @@ export class AuthService {
     }
 
 
-    return user.login();
+    return user.login({roles:user.role});
 
 
   }
@@ -50,7 +53,6 @@ export class AuthService {
 
     let users = await this.userService.where({email});
 
-
     if(users.length) {
       let user = users[0]
       let token =user.generateToken();
@@ -58,7 +60,7 @@ export class AuthService {
         ...user
       });
 
-      Email.send(email, "Reestablecer contraseña", { body : `Ingresa la siguiente password donde se requiera  ${token}`})
+      this.email.send(email, "Reestablecer contraseña", { body : `Ingresa la siguiente password donde se requiera  ${token}`})
       
     }
 
@@ -114,7 +116,7 @@ export class AuthService {
       let token =user.generateToken(24);
       this.userService.update(user.id, user as any);
 
-      Email.send(email, "Verificar correo", { body : `Ingresa la siguiente password donde se requiera  ${token}`})
+      this.email.send(email, "Verificar correo", { body : `Ingresa la siguiente password donde se requiera  ${token}`})
       
     }
 

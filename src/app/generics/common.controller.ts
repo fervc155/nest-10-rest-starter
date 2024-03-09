@@ -1,7 +1,10 @@
 import {BadRequestException , Query, UsePipes , Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { CommonService } from './common.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 
+//@ApiTags("default")
+//@Controller()
 export class CommonController<T> {
 
   constructor(protected readonly service: CommonService<T>) {}

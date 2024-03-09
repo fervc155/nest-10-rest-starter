@@ -1,5 +1,5 @@
 import ModelMedia from './ModelMedia';
-import bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt'
 import Jwt from '../jwt';
 import * as shortid from 'shortid'
 import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn, DeleteDateColumn } from "typeorm";
@@ -13,7 +13,7 @@ export default class Authenticable extends ModelMedia{
     @Column({nullable:true})
     private token:string;
 
-    @Column({type:'date', nullable:true})
+    @Column({type:'timestamp', nullable:true})
     private tokenExpiredAt:Date
 
     @Column({nullable:true, unique:true})
@@ -22,32 +22,34 @@ export default class Authenticable extends ModelMedia{
     @Column({nullable:true})
     private password:string;
 
-    @Column()
-    private roles:string
-
-
     public setPassword(password) {
         this.password=password;
     }
 
 
-    public async hashPassword(password) {
+    public static async hashPassword(password) {
       const hash = await bcrypt.genSalt();
-      this.password =await bcrypt.hash(password, hash);
+      return await bcrypt.hash(password, hash);
     }
 
     public async matchPassword(password) {
         return await bcrypt.compare(password, this.password)
     }
 
-    public async login() {
-        let payload = {
+    public async login(extra:any={}) {
+
+       
+        let sub = {
             id:this.id,
             email:this.email,
-            roles:this.roles || []
+            ...extra
+           
         }
 
-        return Jwt.sign(payload);
+        const jwt = new Jwt()
+        return jwt.sign({
+            sub
+        });
     }
 
     public setToken(token:string) {
@@ -69,7 +71,22 @@ export default class Authenticable extends ModelMedia{
         return this.token;
     }
 
-    public checkToken(token: string): boolean {
-      return token === this.token && new Date() <= this.tokenExpiredAt;
+    public checkToken(token: string) {
+
+        let now = new Date();
+        let expired = new Date(new Date(this.tokenExpiredAt));
+
+        return token==this.token && expired.getTime()>now.getTime();
     }
+
+
+    toJSON() {
+        let data = this as any;
+
+        delete data.password;
+        delete data.token;
+        delete data.tokenExpiredAt;
+        return data;
+    }
+
   }
